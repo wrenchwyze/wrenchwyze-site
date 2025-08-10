@@ -1,0 +1,111 @@
+<!doctype html>
+<html lang="en">
+<head>
+<meta charset="utf-8"><meta name="viewport" content="width=device-width, initial-scale=1">
+<title>WrenchWyze — Book Your On-Site Diagnostic</title>
+<meta name="description" content="AI-powered mobile mechanic diagnostics in Spokane & Spokane Valley.">
+<style>
+:root{--gap:14px;--radius:12px;--font:system-ui,-apple-system,Segoe UI,Roboto,Helvetica,Arial}
+*{box-sizing:border-box}body{font-family:var(--font);margin:0;padding:0;background:#0f172a;color:#e2e8f0}
+a{color:#22d3ee}header.hero{padding:28px 16px 30px;background:radial-gradient(1200px 400px at 50% -50%,rgba(14,165,233,.25),transparent),#0f172a;border-bottom:1px solid #1f2937}
+.container{max-width:1040px;margin:0 auto;padding:0 16px}.nav{display:flex;align-items:center;justify-content:space-between;gap:12px}
+.brand{display:flex;align-items:center;gap:10px}.btn{display:inline-block;border:none;cursor:pointer;background:linear-gradient(135deg,#06b6d4,#0ea5e9);color:#06141f;font-weight:700;padding:12px 16px;border-radius:999px}
+.section{padding:24px 0}.card{background:#111827;border:1px solid #1f2937;border-radius:12px;padding:16px;box-shadow:0 6px 30px rgba(0,0,0,.25)}
+.grid{display:grid;gap:14px}.grid.cols-2{grid-template-columns:1fr 1fr}.grid.cols-3{grid-template-columns:repeat(3,1fr)}
+@media (max-width:800px){.grid.cols-2,.grid.cols-3{grid-template-columns:1fr}}label{font-size:14px;color:#cbd5e1}
+input,textarea,select{width:100%;border:1px solid #334155;background:#0b1220;color:#e2e8f0;padding:12px 14px;border-radius:10px;outline:none}
+input:focus,textarea:focus,select:focus{border-color:#22d3ee}.muted{color:#94a3b8;font-size:13px}
+.success{background:#052e1a;border:1px solid #0f5132;border-radius:10px;padding:12px;margin-top:12px;color:#d1fae5}
+.error{background:#3a0d0d;border:1px solid #842029;border-radius:10px;padding:12px;margin-top:12px;color:#fecaca}
+.alert{background:#0b1220;border:1px solid #243244;border-radius:10px;padding:12px}
+</style>
+</head>
+<body>
+<header class="hero">
+  <div class="container nav">
+    <div class="brand"><div class="btn" style="pointer-events:none">WrenchWyze</div></div>
+    <div class="cta"><a class="btn" href="#intake">Get Estimate</a></div>
+  </div>
+  <div class="container" style="margin-top:18px">
+    <h1>Car trouble? We come to you.</h1>
+    <p>Transparent, AI-assisted diagnostics and on-site repairs in Spokane & Spokane Valley.</p>
+  </div>
+</header>
+
+<section class="section">
+  <div class="container card">
+    <h2 id="intake" style="margin:0 0 8px">Smart Diagnostic Intake</h2>
+    <div id="alert" class="alert" style="display:none"></div>
+    <form id="f" class="grid" onsubmit="return go(event)">
+      <div class="grid cols-3">
+        <div><label>Name</label><input id="customer_name" required></div>
+        <div><label>Phone</label><input id="contact_phone" required></div>
+        <div><label>Email</label><input id="contact_email" type="email" required></div>
+      </div>
+      <div class="grid cols-3">
+        <div><label>Vehicle Year</label><input id="vehicle_year" type="number" required></div>
+        <div><label>Vehicle Make</label><input id="vehicle_make" required></div>
+        <div><label>Vehicle Model</label><input id="vehicle_model" required></div>
+      </div>
+      <div class="grid">
+        <div><label>Main Problem / Symptoms</label><textarea id="symptoms" required></textarea></div>
+      </div>
+      <div class="grid cols-2">
+        <div><label>When did this start & how urgent is it?</label><textarea id="onset_urgency" required></textarea></div>
+        <div><label>Recent repairs or warning lights (optional)</label><textarea id="recent_work_codes"></textarea></div>
+      </div>
+      <div class="grid cols-2">
+        <div><label>Vehicle Location (Street + City)</label><input id="vehicle_location" required></div>
+        <div><label>Urgency</label>
+          <select id="urgency"><option value="low">low</option><option value="medium" selected>medium</option><option value="high">high</option></select>
+        </div>
+      </div>
+      <input type="hidden" id="consult_fee_usd" value="49">
+      <input type="hidden" id="labor_rate_usd_per_hr" value="120">
+      <input type="hidden" id="parts_markup_percent" value="15">
+      <input type="hidden" id="travel_note" value="We service Spokane & Spokane Valley.">
+      <input type="hidden" id="booking_url" value="https://app.acuityscheduling.com/schedule.php?owner=36608118">
+      <div><button class="btn" type="submit">Submit & Get Estimate</button></div>
+    </form>
+    <div id="out"></div>
+    <p class="muted">Issues? Text/call: 509-724-3092.</p>
+  </div>
+</section>
+
+<footer><div class="container">© 2025 WrenchWyze. Spokane, WA.</div></footer>
+
+<script>
+async function go(e){
+  e.preventDefault();
+  const out = document.getElementById('out'); out.textContent=''; out.className='';
+  const v = id => document.getElementById(id).value.trim();
+  const payload = {
+    customer_name:v('customer_name'), contact_phone:v('contact_phone'), contact_email:v('contact_email'),
+    vehicle_year:v('vehicle_year'), vehicle_make:v('vehicle_make'), vehicle_model:v('vehicle_model'),
+    symptoms:v('symptoms'), onset_urgency:v('onset_urgency'), recent_work_codes:v('recent_work_codes'),
+    vehicle_location:v('vehicle_location'), urgency:document.getElementById('urgency').value,
+    consult_fee_usd:v('consult_fee_usd'), labor_rate_usd_per_hr:v('labor_rate_usd_per_hr'),
+    parts_markup_percent:v('parts_markup_percent'), travel_note:v('travel_note'), booking_url:v('booking_url')
+  };
+  try {
+    const res = await fetch('/.netlify/functions/submit', {
+      method:'POST', headers:{'Content-Type':'application/json'}, body: JSON.stringify(payload)
+    });
+    const data = await res.json();
+    if (res.ok && data.ok) {
+      out.className='success';
+      out.innerHTML='✅ Submitted! Check your phone/email for the estimate. We’ll be in touch shortly.';
+      document.getElementById('f').reset();
+    } else {
+      out.className='error';
+      out.textContent='❗Server error. Please try again.';
+    }
+  } catch(err) {
+    out.className='error';
+    out.textContent='❗Network issue. Please try again.';
+  }
+  return false;
+}
+</script>
+</body>
+</html>
